@@ -1,0 +1,123 @@
+@model IEnumerable<DevTrack.Models.TaskItem>
+@{
+    ViewData["Title"] = "DevTrack Dashboard";
+}
+
+<div class="dashboard-header">
+    <div class="header-content">
+        <h1>📋 DevTrack</h1>
+        <p class="subtitle">Internal Developer Task Tracking System</p>
+    </div>
+    <a asp-action="Create" class="btn-create">+ New Task</a>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card total">
+        <div class="stat-number">@ViewBag.TotalTasks</div>
+        <div class="stat-label">Total Tasks</div>
+    </div>
+    <div class="stat-card pending">
+        <div class="stat-number">@ViewBag.PendingTasks</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card inprogress">
+        <div class="stat-number">@ViewBag.InProgressTasks</div>
+        <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card completed">
+        <div class="stat-number">@ViewBag.CompletedTasks</div>
+        <div class="stat-label">Completed</div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert-success">✅ @TempData["Success"]</div>
+}
+
+<!-- Filters -->
+<div class="filters">
+    <a href="@Url.Action("Index")" class="filter-btn @(ViewBag.StatusFilter == null && ViewBag.PriorityFilter == null ? "active" : "")">All</a>
+    <a href="@Url.Action("Index", new { status = "Pending" })" class="filter-btn @(ViewBag.StatusFilter == "Pending" ? "active" : "")">Pending</a>
+    <a href="@Url.Action("Index", new { status = "In Progress" })" class="filter-btn @(ViewBag.StatusFilter == "In Progress" ? "active" : "")">In Progress</a>
+    <a href="@Url.Action("Index", new { status = "Completed" })" class="filter-btn @(ViewBag.StatusFilter == "Completed" ? "active" : "")">Completed</a>
+    <a href="@Url.Action("Index", new { priority = "High" })" class="filter-btn priority-high @(ViewBag.PriorityFilter == "High" ? "active" : "")">🔴 High Priority</a>
+</div>
+
+<!-- Task Table -->
+<div class="table-container">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <p>No tasks found. <a asp-action="Create">Create your first task!</a></p>
+        </div>
+    }
+    else
+    {
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Due Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model)
+                {
+                    <tr class="task-row @task.Priority.ToLower()">
+                        <td>
+                            <div class="task-title">@task.Title</div>
+                            @if (!string.IsNullOrEmpty(task.Description))
+                            {
+                                <div class="task-desc">@task.Description</div>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge priority-@task.Priority.ToLower()">@task.Priority</span>
+                        </td>
+                        <td>
+                            <form asp-action="UpdateStatus" method="post" style="display:inline">
+                                <input type="hidden" name="id" value="@task.Id" />
+                                @{
+                                    var statusClass = task.Status.Replace(" ", "").ToLower();
+                                }
+                                <select name="status" onchange="this.form.submit()" class="status-select status-@statusClass">
+                                    <option value="Pending" selected="@(task.Status == "Pending")">Pending</option>
+                                    <option value="In Progress" selected="@(task.Status == "In Progress")">In Progress</option>
+                                    <option value="Completed" selected="@(task.Status == "Completed")">Completed</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>@(task.AssignedTo ?? "Unassigned")</td>
+                        <td>
+                            @if (task.DueDate.HasValue)
+                            {
+                                var isOverdue = task.DueDate.Value < DateTime.Now && task.Status != "Completed";
+                                <span class="@(isOverdue ? "overdue" : "")">
+                                    @task.DueDate.Value.ToString("MMM dd, yyyy")
+                                    @if (isOverdue) { <text>⚠️</text> }
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="no-date">—</span>
+                            }
+                        </td>
+                        <td class="actions">
+                            <a asp-action="Edit" asp-route-id="@task.Id" class="btn-edit">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@task.Id" method="post" style="display:inline"
+                                  onsubmit="return confirm('Delete this task?')">
+                                <button type="submit" class="btn-delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

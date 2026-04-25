@@ -1,0 +1,69 @@
+@model DevTrack.Models.TaskItem
+@{
+    ViewData["Title"] = "DevTrack — Edit Task";
+}
+
+<div class="form-container">
+    <div class="form-header">
+        <h2>✏️ DevTrack — Edit Task</h2>
+        <a asp-action="Index" class="btn-back">← Back to Dashboard</a>
+    </div>
+
+    <form asp-action="Edit" method="post" class="task-form">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <div class="form-group">
+            <label asp-for="Title">Task Title *</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description">Description</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="Priority">Priority *</label>
+                <select asp-for="Priority" class="form-control">
+                    <option value="Low">🟢 Low</option>
+                    <option value="Medium">🟡 Medium</option>
+                    <option value="High">🔴 High</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Status">Status *</label>
+                <select asp-for="Status" class="form-control">
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="AssignedTo">Assigned To</label>
+                <input asp-for="AssignedTo" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DueDate">Due Date</label>
+                <input asp-for="DueDate" type="date" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Save Changes</button>
+            <a asp-action="Index" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
