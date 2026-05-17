@@ -13,7 +13,7 @@ namespace DevTrack.Controllers
         {
             _context = context;
         }
-
+        
         // GET: / - List all tasks
         public async Task<IActionResult> Index(string? status, string? priority)
         {
