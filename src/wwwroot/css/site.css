@@ -173,7 +173,9 @@ body {
     background: white;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .task-table { width: 100%; border-collapse: collapse; }
